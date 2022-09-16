@@ -1,45 +1,59 @@
-import { Text, TouchableOpacity, View } from "react-native";
-import { GameController } from "phosphor-react-native";
-import { THEME } from "../../theme";
-import { DuoInfo } from "../DuoInfo";
-import { styles } from "./styles";
+import { GameController } from 'phosphor-react-native';
+import React from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { THEME } from '../../theme';
+import { DuoInfo } from '../DuoInfo';
+import { styles } from './styles';
 
 export interface DuoCardProps {
   id: string;
+  hourEnd?: string;
+  hourStart?: string;
   name: string;
-  yearsPlaying: number;
+  useVoiceChannel: boolean;
   weekDays: string[];
-  hourStart: string;
-  hourEnd: string;
-  useVoiceChannel: Boolean;
-}
-
-interface Props {
-  data: DuoCardProps;
+  yearsPlaying: number;
   onConnect: () => void;
 }
 
-export function DuoCard({ data, onConnect }: Props) {
+export function DuoCard({ name, hourStart, hourEnd, weekDays, yearsPlaying, useVoiceChannel, onConnect }: DuoCardProps) {
   return (
     <View style={styles.container}>
-      <DuoInfo label="Username" value={data.name} />
-      <DuoInfo label="Years Playing" value={`${data.yearsPlaying} years`} />
       <DuoInfo
-        label="Availability"
-        value={`${data.weekDays.length} days \u2022 ${data.hourStart} - ${data.hourEnd}`}
-      />
-      <DuoInfo
-        label="Use voice channel?"
-        value={`${data.useVoiceChannel ? "Yes" : "No"}`}
-        colorValue={`${
-          data.useVoiceChannel ? THEME.COLORS.SUCCESS : THEME.COLORS.ALERT
-        }`}
+        label="Nome"
+        value={name}
       />
 
-      <TouchableOpacity style={styles.button} onPress={onConnect}>
-        <GameController color={THEME.COLORS.TEXT} size={20} />
-        <Text style={styles.buttonTitle}>Connect</Text>
+      <DuoInfo
+        label="Tempo de jogo"
+        value={`${yearsPlaying}  ${yearsPlaying === 1 ? 'ano' : 'anos'}`}
+      />
+
+      <DuoInfo
+        label="Disponibilidade"
+        value={`${weekDays.length} ${weekDays.length === 1 ? 'dia' : 'dias'} \u2022 ${hourStart}h - ${hourEnd}h`}
+      />
+
+      <DuoInfo
+        label="Chamada de áudio?"
+        value={useVoiceChannel ? 'Sim' : 'Não'}
+        colorValue={useVoiceChannel ? THEME.COLORS.SUCCESS : THEME.COLORS.ALERT}
+      />
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={onConnect}
+      >
+        <GameController
+          size={20}
+          color={THEME.COLORS.TEXT}
+        />
+
+        <Text style={styles.buttonTitle}>Conectar</Text>
+
       </TouchableOpacity>
+
+
     </View>
   );
 }

@@ -1,51 +1,69 @@
-import { useEffect, useState } from "react";
-import { FlatList, Image } from "react-native";
-import { styles } from "./styles";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useNavigation } from "@react-navigation/native";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from 'react';
+import { Image, FlatList, ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import Logo from '../../assets/logo-nlw-esports.png';
+import { useNavigation } from '@react-navigation/native';
+import { Background, GameCard, GameCardProps, Heading } from '../../components';
+import { styles } from './styles';
+import { THEME } from '../../theme';
 
-import { Heading } from "../../components/Heading";
-import { GameCard, GameCardsProps } from "../../components/GameCard";
-
-import logoImg from "../../assets/logo-nlw-esports.png";
-import { Background } from "../../components/Background";
+interface Games {
+  id: string;
+  title: string;
+  bannerUrl: string;
+  _count: {
+    ads: number;
+  }
+}
 
 export function Home() {
-  const [games, setGames] = useState<GameCardsProps[]>([]);
-
-  useEffect(() => {
-    fetch("http://192.168.0.158:5556/games")
-      .then((response) => response.json())
-      .then((data) => {
-        setGames(data);
-      });
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [games, setGames] = useState<Games[]>([]);
 
   const navigation = useNavigation();
 
-  function handleOpenGame({ id, title, bannerUrl }: GameCardsProps) {
-    navigation.navigate("game", { id, title, bannerUrl });
+  function toGame({ id, title, bannerUrl }: GameCardProps) {
+    navigation.navigate('game', { id, title, bannerUrl });
   }
+
+  function fetchData() {
+    fetch('http://192.168.17.192:5556/games')
+      .then(response => response.json())
+      .then((data) => setGames(data));
+
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <Background>
+
       <SafeAreaView style={styles.container}>
-        <Image source={logoImg} style={styles.logo} />
+        <Image
+          source={Logo}
+          style={styles.logo}
+        />
 
         <Heading
-          title="Find your duo!"
-          subtitle="Choose the game you'd like to play..."
+          title='Encontre seu duo!'
+          subtitle='Selecione o game que deseja jogar...'
         />
-        <FlatList
-          contentContainerStyle={styles.contentList}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={games}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <GameCard data={item} onPress={() => handleOpenGame(item)} />
-          )}
-        />
+
+        {loading
+          ? <ActivityIndicator size={20} color={THEME.COLORS.TEXT} />
+          : <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.contentList}
+            data={games}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => <GameCard {...item} onPress={() => toGame(item)} />}
+          />
+        }
       </SafeAreaView>
     </Background>
   );
